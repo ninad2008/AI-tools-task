@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090911" />
+  <title>Wheel of Impossible Destiny</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090911;
+      --panel: rgba(19, 19, 33, .76);
+      --text: #f7f5ff;
+      --muted: #9995b3;
+      --cyan: #41f5ff;
+      --pink: #ff48c4;
+      --lime: #d7ff57;
+      --violet: #a783ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 50% 32%, rgba(83, 47, 154, .22), transparent 48%),
+        radial-gradient(ellipse at 4% 92%, rgba(20, 167, 178, .1), transparent 38%),
+        var(--bg);
+    }
+    body::before {
+      position: fixed; inset: 0; z-index: -1; content: "";
+      opacity: .18; pointer-events: none;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 82%);
+    }
+    .topbar {
+      min-height: 62px; padding: 15px clamp(18px, 5vw, 72px);
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(9, 9, 17, .52); backdrop-filter: blur(14px);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; }
+    .brand-mark { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: #11101a; background: linear-gradient(135deg, var(--cyan), var(--pink)); box-shadow: 0 0 22px rgba(65,245,255,.32); }
+    .credit { color: #bcb8d0; font-size: 12px; letter-spacing: .035em; }
+    main { width: min(1120px, calc(100% - 36px)); margin: 0 auto; padding: clamp(40px, 7vh, 76px) 0 54px; }
+    .intro { text-align: center; margin-bottom: 35px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--cyan); font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 12px var(--lime); animation: pulse 1.7s infinite; }
+    h1 { margin: 15px 0 9px; font-size: clamp(34px, 6.1vw, 68px); line-height: .98; letter-spacing: -.065em; font-weight: 900; }
+    h1 span { color: transparent; background: linear-gradient(100deg, var(--cyan), #c798ff 50%, var(--pink)); -webkit-background-clip: text; background-clip: text; }
+    .subtitle { margin: 0; color: var(--muted); font-size: clamp(13px, 2vw, 16px); }
+    .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; align-items: center; gap: clamp(28px, 5vw, 68px); max-width: 950px; margin: 0 auto; }
+    .wheel-stage { position: relative; width: min(100%, 540px); aspect-ratio: 1; margin: auto; display: grid; place-items: center; }
+    .orbit { position: absolute; inset: 2.3%; border: 1px solid rgba(167,131,255,.19); border-radius: 50%; box-shadow: 0 0 40px rgba(116,78,255,.12), inset 0 0 40px rgba(116,78,255,.05); }
+    .orbit::before, .orbit::after { content: ""; position: absolute; inset: 5.5%; border: 1px dashed rgba(65,245,255,.22); border-radius: 50%; animation: orbit 48s linear infinite; }
+    .orbit::after { inset: -5.5%; border-style: solid; border-color: rgba(255,72,196,.13); animation-direction: reverse; animation-duration: 72s; }
+    .wheel-wrap { position: relative; width: 83%; aspect-ratio: 1; border-radius: 50%; padding: 10px; background: linear-gradient(135deg, rgba(65,245,255,.65), rgba(167,131,255,.8), rgba(255,72,196,.8)); box-shadow: 0 0 22px rgba(65,245,255,.22), 0 0 75px rgba(134,76,255,.19); }
+    .wheel-wrap::before { content: ""; position: absolute; inset: 4px; border-radius: 50%; border: 1px solid rgba(255,255,255,.55); z-index: 2; pointer-events: none; }
+    #wheel { display: block; width: 100%; height: 100%; border-radius: 50%; transform: rotate(0deg); transition: transform 5.2s cubic-bezier(.12,.68,.08,1); }
+    .hub { position: absolute; z-index: 3; top: 50%; left: 50%; width: 19%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; border: 3px solid rgba(255,255,255,.72); background: radial-gradient(circle at 35% 30%, #fff, #b3aaff 18%, #5143a4 52%, #171529 75%); box-shadow: 0 0 0 5px rgba(11,10,21,.72), 0 0 28px rgba(190,169,255,.7); }
+    .pointer { position: absolute; z-index: 5; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 17px solid transparent; border-right: 17px solid transparent; border-top: 35px solid var(--lime); filter: drop-shadow(0 0 10px rgba(215,255,87,.9)); }
+    .pointer::before { content: ""; position: absolute; left: -5px; top: -35px; width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: 0 0 11px #fff; }
+    .spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px 3px rgba(65,245,255,.65); }
+    .spark.one { top: 14%; right: 12%; }.spark.two { bottom: 18%; left: 7%; background: var(--pink); box-shadow: 0 0 12px 3px rgba(255,72,196,.65); }.spark.three { top: 27%; left: 5%; width: 3px; height: 3px; }
+    .side-panel { padding: 24px; border: 1px solid rgba(255,255,255,.1); border-radius: 22px; background: linear-gradient(145deg, rgba(28,27,46,.9), rgba(15,15,27,.85)); box-shadow: 0 18px 60px rgba(0,0,0,.24); }
+    .panel-kicker { color: var(--muted); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; font-weight: 800; }
+    .result { display: grid; place-items: center; min-height: 127px; margin: 14px 0 18px; text-align: center; padding: 14px; border-radius: 15px; border: 1px solid rgba(255,255,255,.07); background: rgba(7,7,15,.44); }
+    .result-emoji { font-size: 30px; line-height: 1; margin-bottom: 9px; filter: drop-shadow(0 0 12px rgba(215,255,87,.32)); }
+    .result-title { font-size: 18px; font-weight: 850; letter-spacing: -.025em; }
+    .result-copy { max-width: 225px; margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .spin-button { width: 100%; border: 0; border-radius: 13px; padding: 15px 18px; color: #090911; background: linear-gradient(100deg, var(--cyan), #9ef8d7 52%, var(--lime)); font: inherit; font-size: 13px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 25px rgba(65,245,255,.22); transition: transform .18s ease, box-shadow .2s ease, filter .2s ease; }
+    .spin-button:hover { transform: translateY(-2px); box-shadow: 0 8px 34px rgba(65,245,255,.36); filter: saturate(1.12); }
+    .spin-button:active { transform: translateY(1px) scale(.985); }
+    .spin-button:disabled { cursor: wait; opacity: .66; filter: grayscale(.2); }
+    .hint { margin: 13px 0 0; text-align: center; color: #77738d; font-size: 10px; }
+    .meta { display: flex; justify-content: center; gap: 15px; margin-top: 19px; color: #77738d; font-size: 10px; }
+    .meta span { display: inline-flex; gap: 6px; align-items: center; }
+    .sound-toggle { border: 0; padding: 0; color: inherit; background: none; font: inherit; cursor: pointer; }
+    .sound-toggle:hover { color: var(--text); }
+    .history { margin-top: 15px; min-height: 26px; color: #7e7a96; font-size: 10px; line-height: 1.7; text-align: center; }
+    .history strong { color: #c1bdd5; font-weight: 600; }
+    .footer { margin-top: 50px; text-align: center; color: #5f5c72; font-size: 10px; letter-spacing: .07em; }
+    #particles { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 20; pointer-events: none; }
+    body.shake { animation: shake .42s cubic-bezier(.36,.07,.19,.97) both; }
+    .result.pop { animation: resultPop .45s cubic-bezier(.2,.8,.3,1.35); }
+    @keyframes pulse { 50% { opacity: .45; transform: scale(.75); } }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes shake { 10%,90% { transform: translate3d(-2px,1px,0); } 20%,80% { transform: translate3d(4px,-2px,0); } 30%,50%,70% { transform: translate3d(-5px,2px,0); } 40%,60% { transform: translate3d(5px,-1px,0); } }
+    @keyframes resultPop { 0% { transform: scale(.9); opacity: .55; } 60% { transform: scale(1.035); } 100% { transform: scale(1); opacity: 1; } }
+    @media (max-width: 740px) {
+      main { padding-top: 40px; }
+      .game-layout { grid-template-columns: 1fr; gap: 24px; max-width: 520px; }
+      .wheel-stage { width: min(100%, 430px); }
+      .side-panel { padding: 20px; }
+      .result { min-height: 112px; }
+      .footer { margin-top: 35px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+      #wheel { transition-duration: .01ms; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">✳</span><span>Destiny Labs</span></div>
+    <div class="credit">Created by Student #[150096725180]</div>
+  </header>
+  <main>
+    <section class="intro">
+      <div class="eyebrow"><span class="live-dot"></span> Chaos engine online</div>
+      <h1>Wheel of <span>Impossible Destiny</span></h1>
+      <p class="subtitle">One spin. Questionable consequences. Absolutely no appeals.</p>
+    </section>
+    <section class="game-layout" aria-label="Interactive destiny wheel">
+      <div class="wheel-stage">
+        <div class="orbit"></div><i class="spark one"></i><i class="spark two"></i><i class="spark three"></i>
+        <div class="pointer" aria-hidden="true"></div>
+        <div class="wheel-wrap"><canvas id="wheel" width="800" height="800" aria-label="Colorful wheel of possible outcomes"></canvas><div class="hub"></div></div>
+      </div>
+      <aside class="side-panel">
+        <div class="panel-kicker">Your highly questionable fate</div>
+        <div class="result" id="result" aria-live="polite">
+          <div>
+            <div class="result-emoji" id="resultEmoji">✦</div>
+            <div class="result-title" id="resultTitle">Awaiting chaos</div>
+            <div class="result-copy" id="resultCopy">The universe has not made up its mind. Give it a spin.</div>
+          </div>
+        </div>
+        <button class="spin-button" id="spinButton" type="button">Spin the wheel <span aria-hidden="true">↗</span></button>
+        <p class="hint">The wheel knows things. It will not explain.</p>
+        <div class="meta">
+          <span>◉ Physics: <strong>unverified</strong></span>
+          <span><button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true">♫ Sound: on</button></span>
+        </div>
+        <div class="history" id="history" aria-live="polite">Your fate log will appear here.</div>
+      </aside>
+    </section>
+    <div class="footer">A completely legitimate instrument of destiny · Results are legally non-binding</div>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+      const outcomes = [
+        { title: "Become a houseplant", emoji: "🪴", copy: "You are now a thriving fern. Your calendar is mostly sunlight." },
+        { title: "Soup knows your name", emoji: "🥣", copy: "A bowl of soup whispers, “We meet again.” You do not remember meeting." },
+        { title: "Tiny hat destiny", emoji: "🎩", copy: "A very small hat has chosen you. Wear it with unreasonable confidence." },
+        { title: "Crowned by pigeons", emoji: "🐦", copy: "The city pigeons have elected you mayor. Your first decree: more crumbs." },
+        { title: "The moon says “meh”", emoji: "🌙", copy: "The moon considered your request and gave a sleepy thumbs-down." },
+        { title: "Legendary nap", emoji: "😴", copy: "Your next nap will be so good it gets its own documentary." },
+        { title: "Keyboard goblin", emoji: "⌨️", copy: "A tiny goblin will rearrange your keys. It is very proud of itself." },
+        { title: "Unlimited bread", emoji: "🍞", copy: "You have been granted one (1) extremely confident loaf." },
+        { title: "Dragon's intern", emoji: "🐉", copy: "You got the internship! Mostly filing treasure and polishing scales." },
+        { title: "Secret: dramatic fog", emoji: "🌫️", copy: "A personal fog machine appears whenever you enter a room. No one asked why." },
+        { title: "One free cheese", emoji: "🧀", copy: "A mysterious cheese materializes. Its backstory is classified." },
+        { title: "Plot twist: you're a hat", emoji: "🧢", copy: "Not wearing a hat. You are the hat. This changes nothing and everything." }
+      ];
+      const colors = ["#ff4da6", "#7548f6", "#11bdd2", "#ff8c42", "#8e49cd", "#d4e84c", "#eb4f62", "#2da995", "#5680f5", "#db62b4", "#3b9ee7", "#9b56ea"];
+      const wheel = document.getElementById("wheel");
+      const ctx = wheel.getContext("2d");
+      const spinButton = document.getElementById("spinButton");
+      const resultBox = document.getElementById("result");
+      const particleCanvas = document.getElementById("particles");
+      const pctx = particleCanvas.getContext("2d");
+      let rotation = 0, spinning = false, soundEnabled = true, audioContext = null, particles = [], lastTick = 0;
+
+      function drawWheel() {
+        const center = 400, radius = 392, arc = Math.PI * 2 / outcomes.length;
+        ctx.clearRect(0, 0, 800, 800);
+        outcomes.forEach((item, i) => {
+          const start = -Math.PI / 2 + i * arc;
+          ctx.beginPath(); ctx.moveTo(center, center); ctx.arc(center, center, radius, start, start + arc); ctx.closePath();
+          ctx.fillStyle = colors[i]; ctx.fill();
+          ctx.strokeStyle = "rgba(255,255,255,.38)"; ctx.lineWidth = 3; ctx.stroke();
+          ctx.save(); ctx.translate(center, center); ctx.rotate(start + arc / 2);
+          ctx.textAlign = "right"; ctx.textBaseline = "middle";
+          ctx.font = "800 24px system-ui, sans-serif"; ctx.fillStyle = "#fff";
+          ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 5;
+          ctx.fillText(item.emoji, 348, -4);
+          ctx.restore();
+        });
+        ctx.beginPath(); ctx.arc(center, center, radius, 0, Math.PI * 2); ctx.strokeStyle = "rgba(255,255,255,.9)"; ctx.lineWidth = 9; ctx.stroke();
+      }
+      drawWheel();
+
+      function resizeParticles() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        particleCanvas.width = Math.floor(innerWidth * dpr); particleCanvas.height = Math.floor(innerHeight * dpr);
+        particleCanvas.style.width = innerWidth + "px"; particleCanvas.style.height = innerHeight + "px";
+        pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resizeParticles();
+      window.addEventListener("resize", resizeParticles);
+
+      function tone(frequency, duration, type = "sine", volume = .055) {
+        if (!soundEnabled) return;
+        try {
+          audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+          if (audioContext.state === "suspended") audioContext.resume();
+          const osc = audioContext.createOscillator(), gain = audioContext.createGain();
+          osc.type = type; osc.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          gain.gain.setValueAtTime(volume, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration);
+          osc.connect(gain); gain.connect(audioContext.destination); osc.start(); osc.stop(audioContext.currentTime + duration);
+        } catch (_) { /* Audio is an optional enhancement; the wheel still works without it. */ }
+      }
+      function burst(x, y, count = 100) {
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2, speed = 1.5 + Math.random() * 7;
+          particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed - 2, life: 1, decay: .009 + Math.random() * .016, size: 2 + Math.random() * 5, color: colors[Math.floor(Math.random() * colors.length)], shape: Math.random() > .5 ? "circle" : "square", spin: Math.random() * 6 });
+        }
+      }
+      function animateParticles() {
+        pctx.clearRect(0, 0, innerWidth, innerHeight);
+        particles = particles.filter(p => p.life > 0);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += .08; p.vx *= .99; p.life -= p.decay; p.spin += .08;
+          pctx.globalAlpha = Math.max(0, p.life); pctx.fillStyle = p.color;
+          if (p.shape === "square") { pctx.save(); pctx.translate(p.x, p.y); pctx.rotate(p.spin); pctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); pctx.restore(); }
+          else { pctx.beginPath(); pctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); pctx.fill(); }
+        });
+        pctx.globalAlpha = 1;
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+
+      function spin() {
+        if (spinning) return;
+        spinning = true; spinButton.disabled = true;
+        const index = Math.floor(Math.random() * outcomes.length);
+        const arcDegrees = 360 / outcomes.length;
+        const targetOffset = 360 - (index * arcDegrees + arcDegrees / 2);
+        const current = ((rotation % 360) + 360) % 360;
+        const adjustment = ((targetOffset - current) % 360 + 360) % 360;
+        rotation += 360 * (6 + Math.floor(Math.random() * 3)) + adjustment;
+        wheel.style.transform = `rotate(${rotation}deg)`;
+        tone(180, .16, "triangle", .035);
+        const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 100 : 5350;
+        const started = performance.now();
+        const tick = now => {
+          const progress = Math.min(1, (now - started) / duration);
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const tickAt = Math.floor(ease * 48);
+          if (tickAt !== lastTick && tickAt < 45) { tone(390 + (tickAt % 4) * 65, .035, "square", .012); lastTick = tickAt; }
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        lastTick = -1; requestAnimationFrame(tick);
+        window.setTimeout(() => {
+          spinning = false; spinButton.disabled = false;
+          const outcome = outcomes[index];
+          document.getElementById("resultEmoji").textContent = outcome.emoji;
+          document.getElementById("resultTitle").textContent = outcome.title;
+          document.getElementById("resultCopy").textContent = outcome.copy;
+          resultBox.classList.remove("pop"); void resultBox.offsetWidth; resultBox.classList.add("pop");
+          document.body.classList.remove("shake"); void document.body.offsetWidth; document.body.classList.add("shake");
+          window.setTimeout(() => document.body.classList.remove("shake"), 450);
+          const rect = wheel.getBoundingClientRect();
+          burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 130);
+          tone(520, .16, "sine", .045); window.setTimeout(() => tone(780, .32, "sine", .04), 100);
+          const history = document.getElementById("history");
+          history.innerHTML = `Last fate: <strong>${outcome.emoji} ${outcome.title}</strong> · The universe has spoken.`;
+        }, duration + 80);
+      }
+      spinButton.addEventListener("click", spin);
+      document.getElementById("soundToggle").addEventListener("click", event => {
+        soundEnabled = !soundEnabled;
+        event.currentTarget.textContent = `♫ Sound: ${soundEnabled ? "on" : "off"}`;
+        event.currentTarget.setAttribute("aria-pressed", String(soundEnabled));
+        if (soundEnabled) tone(660, .12, "sine", .03);
+      });
+      document.addEventListener("keydown", event => {
+        if ((event.code === "Space" || event.code === "Enter") && event.target === document.body) { event.preventDefault(); spin(); }
+      });
+    })();
+  </script>
+</body>
+</html>
